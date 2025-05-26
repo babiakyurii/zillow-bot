@@ -115,10 +115,11 @@ async def get_summary(request:Request):
     phone = res.get("phone")
     message_history = res["customData"]["message_history"]
     summary = chatmodel.get_summary_of_conversation(message_history)
+    contact_id = res.get("customData").get("contact_id")
     
 
     # Get location ID from GHL
-    location_id = await get_ghl_location_id(email, phone)
+    location_id = await get_ghl_location_id(contact_id, email, phone)
 
    # summary = f"{summary}"
     async with aiohttp.ClientSession() as session:
@@ -144,7 +145,7 @@ async def get_tax_or_price_info(request: Request):
     messages = chatmodel.history_add(message_history, contact_name)
 
     # Get location ID from GHL
-    location_id = await get_ghl_location_id(email, phone)
+    location_id = await get_ghl_location_id(contact_id, email, phone)
 
     res = get_tax_informatiom(address)
     messages.append(SystemMessage(
@@ -182,10 +183,12 @@ async def google_places(request: Request):
     user_query = f"{user_message}, near {address}, USA"
     message_history = res["customData"].get("message_history", "")
     contact_name = res["customData"]["contact_name"]
+    contact_id = res.get("customData").get("contact_id")
+
     print("USER_QUERY: ", user_query)
 
     # Get location ID from GHL
-    location_id = await get_ghl_location_id(email, phone)
+    location_id = await get_ghl_location_id(contact_id, email, phone)
 
     city_state = address.split(",")
     print("FIRST_SPLIT_ADDRESS: ", city_state)
@@ -300,8 +303,10 @@ async def find_similar_homes(request: Request):
     address = res["customData"].get("address", "")
     user_message = res["customData"]["message"]
     message_history = res["customData"].get("message_history", "")
+    contact_id = res.get("customData").get("contact_id")
+
     # Get location ID from GHL
-    location_id = await get_ghl_location_id(email, phone)
+    location_id = await get_ghl_location_id(contact_id, email, phone)
 
     print("USER_QUERY: ", f"{user_message}, {address}")
     contact_name = res["customData"]["contact_name"]
@@ -339,9 +344,11 @@ async def find_nearby_homes(request: Request):
     user_message = res["customData"]["message"]
     message_history = res["customData"].get("message_history", "")
     contact_name = res["customData"]["contact_name"]
+    contact_id = res.get("customData").get("contact_id")
+
 
     # Get location ID from GHL
-    location_id = await get_ghl_location_id(email, phone)
+    location_id = await get_ghl_location_id(contact_id, email, phone)
 
     agent_id = res["customData"].get("agent_id", "")
     messages = chatmodel.history_add(message_history, contact_name)
@@ -380,7 +387,7 @@ async def find_agent_listings(request: Request):
     photo_link = []
     
     # Get location ID from GHL
-    location_id = await get_ghl_location_id(email, phone)
+    location_id = await get_ghl_location_id(contact_id, email, phone)
 
     if agent_id:
         listings = get_agent_listings(agent_id)
@@ -558,7 +565,7 @@ async def get_house_details_tool(request: Request, request_body: RequestBody):
     print("ADDRESS: ", address)
     print("CONTACT_NAME: ", contact_name)
     # Get location ID from GHL
-    location_id = await get_ghl_location_id(email, phone)
+    location_id = await get_ghl_location_id(contact_id, email, phone)
     messages = chatmodel.history_add(message_history, contact_name)
 
     result = get_house_property(address)
@@ -601,7 +608,7 @@ async def find_distance_tool(request: Request, request_body: RequestBody):
     print("ADDRESS: ", address)
     print("PLACE_ADDRESS: ", place_address)
     # Get location ID from GHL
-    location_id = await get_ghl_location_id(email, phone)
+    location_id = await get_ghl_location_id(contact_id, email, phone)
     city_state = address.split(",")
     print("FIRST_SPLIT_ADDRESS: ", city_state)
     if len(city_state) > 2:
@@ -808,7 +815,7 @@ async def realtor_get_property_details(request: Request):
     messages = chatmodel.history_add(message_history, contact_name)
     result = realtor_get_house_details(user_query)
     # Get location ID from GHL
-    location_id = await get_ghl_location_id(email, phone)
+    location_id = await get_ghl_location_id(contact_id, email, phone)
     messages.append(SystemMessage(
             content=f"""This is User message:{user_message}.
             Property located at {address}.

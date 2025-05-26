@@ -3,7 +3,7 @@ import re
 import aiohttp
 from typing import Optional, List
 
-async def get_ghl_location_id(email: Optional[str] = None, phone: Optional[str] = None, api_keys: Optional[List[str]] = None) -> Optional[str]:
+async def get_ghl_location_id(contact_id: Optional[str] = None, email: Optional[str] = None, phone: Optional[str] = None, api_keys: Optional[List[str]] = None) -> Optional[str]:
     """
     Get the location ID from GHL using either email or phone number, trying multiple API keys if provided.
     
@@ -33,8 +33,21 @@ async def get_ghl_location_id(email: Optional[str] = None, phone: Optional[str] 
             "Authorization": f"Bearer {api_key}",
             "Content-Type": "application/json"
         }
+
+        # Try contact_id first if available
+        if contact_id:
+            url = f"https://rest.gohighlevel.com/v1/contacts/{contact_id}"
+            async with aiohttp.ClientSession() as session:
+                async with session.get(url, headers=headers) as response:
+                    print("CONTACTID RESPONSE: ", response.status)
+                    if response.status == 200:
+                        data = await response.json()
+                        print("CONTACTID DATA: ", data)
+                        if data and 'contacts' in data and len(data['contacts']) > 0:
+                            print(f"Successfully found Location ID using API Key #{i}")
+                            return data['contacts']['locationId']
         
-        # Try email first if available
+        # If contact_id lookup failed or wasn't available, try email
         print("EMAIL: ", email)
         if email:
             url = f"https://rest.gohighlevel.com/v1/contacts/lookup?email={email}"
