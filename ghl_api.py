@@ -35,6 +35,7 @@ async def get_ghl_location_id(contact_id: Optional[str] = None, email: Optional[
         }
 
         # Try contact_id first if available
+        print("CONTACTID: ", contact_id)
         if contact_id:
             url = f"https://rest.gohighlevel.com/v1/contacts/{contact_id}"
             async with aiohttp.ClientSession() as session:
@@ -43,9 +44,9 @@ async def get_ghl_location_id(contact_id: Optional[str] = None, email: Optional[
                     if response.status == 200:
                         data = await response.json()
                         print("CONTACTID DATA: ", data)
-                        if data and 'contacts' in data and len(data['contacts']) > 0:
+                        if data and 'contact' in data:
                             print(f"Successfully found Location ID using API Key #{i}")
-                            return data['contacts']['locationId']
+                            return data['contact']['locationId']
         
         # If contact_id lookup failed or wasn't available, try email
         print("EMAIL: ", email)
