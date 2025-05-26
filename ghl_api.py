@@ -26,6 +26,8 @@ async def get_ghl_location_id(contact_id: Optional[str] = None, email: Optional[
         ]
     api_keys = [k for k in api_keys if k]  # Remove None values
 
+    print("api keys: ", api_keys)
+    
     # Try each API key in order
     for i, api_key in enumerate(api_keys, 1):
         print(f"\nTrying API Key #{i}")
